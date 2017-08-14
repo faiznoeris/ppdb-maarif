@@ -2,7 +2,7 @@
   <div class="navbar-fixed">
     <nav class="nav-extended">
       <div class="nav-wrapper green darken-3">
-        <a href="<?= base_url(''); ?>" class="brand-logo"><img style="height: 60px; width: 70px; float: left; padding-right: 10px;"src="http://3.bp.blogspot.com/-t1IYXxFBkGQ/VqQ-X-LdlcI/AAAAAAAAAC4/0H6834-RoVs/s200/logomf%2Bsmk.jpg">SMK Ma'arif NU 1 Sumpiuh</i></a>
+        <a href="<?= base_url(''); ?>" class="brand-logo"><img style="height: 60px; width: 70px; float: left; padding-right: 10px;"src="<?= base_url('/asset/images/icon.jpg') ?>">SMK Ma'arif NU 1 Sumpiuh</i></a>
         <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
           <?php

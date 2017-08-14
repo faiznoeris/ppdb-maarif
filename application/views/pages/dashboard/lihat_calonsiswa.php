@@ -9,7 +9,7 @@
   <div class="card-panel">
     <div class="row">
       <center>
-        <img class="responsive-img" src="http://spu.edu/~/media/administration/student-financial-services/panel/student-in-sub.ashx" style="height: 250px; width: 330px;">
+        <img class="responsive-img" src="<?= base_url($data_siswa->foto_path); ?>" style="height: 250px; width: 330px;">
         <h4><i>#<?= $data_siswa->id_pendaftar; ?></i></h4>
         
         <a class="waves-effect waves-light btn tooltipped" data-position="bottom" data-delay="50" data-tooltip="Unduh detail data pendaftar <?= $data_siswa->nm_lengkap ?>" href="<?= base_url('index/test2'); ?>"><i class="material-icons" style="font-size: 25px;">get_app</i></a>

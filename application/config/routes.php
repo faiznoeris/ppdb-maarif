@@ -80,9 +80,20 @@ $route['dashboard/datapendaftar/edit/(:num)'] = 'index/editdatapendaftar/$1';
 $route['dashboard/datapendaftar/view/(:num)'] = 'index/lihatdatapendaftar/$1';
 
 $route['dashboard/adduser'] = 'index/adduser';
+
+
+$route['dashboard/pengaturan'] = 'index/pengaturan';
+$route['dashboard/pengaturan/thajaran/add'] = 'index/addthajaran';
+$route['dashboard/pengaturan/thajaran/edit/(:num)'] = 'index/editthajaran/$1';
+$route['dashboard/pengaturan/kuota/edit/(:num)'] = 'index/editkuota/$1';
+
+
+$route['dashboard/datasiswa'] = 'index/datasiswa';
+$route['dashboard/datablacklist'] = 'index/datablacklist';
 $route['dashboard/editprofile'] = 'index/editprofile';
 $route['dashboard/seleksipendaftar'] = 'index/seleksipendaftar';
-$route['dashboard/pengaturan'] = 'index/pengaturan';
+$route['dashboard/daftarulang'] = 'index/daftarulang';
+
 
 /*
 *		GAGAL / SUKSES PAGES

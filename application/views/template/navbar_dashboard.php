@@ -16,10 +16,22 @@
             <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
             <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
             <a class="breadcrumb">Lihat Data Pendaftar</a>
+          <?php elseif($pages == "datasiswa"): ?>
+            <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
+            <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
+            <a class="breadcrumb">Lihat Data Siswa</a>
           <?php elseif($pages == "seleksipendaftar"): ?>
             <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
             <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
             <a class="breadcrumb">Seleksi Pendaftar</a>
+          <?php elseif($pages == "datablacklist"): ?>
+            <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
+            <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
+            <a class="breadcrumb">Data Blacklist</a>
+          <?php elseif($pages == "daftarulang"): ?>
+            <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
+            <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
+            <a class="breadcrumb">Daftar Ulang</a>
           <?php elseif($pages == "adduser"): ?>
             <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
             <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
@@ -38,6 +50,25 @@
             <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
             <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
             <a href="<?= base_url('dashboard/editprofile'); ?>" class="breadcrumb">Edit Profile</a>
+          <?php elseif($pages == "pengaturan"): ?>
+            <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
+            <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
+            <a class="breadcrumb">Pengaturan</a>
+          <?php elseif($pages == "addthajaran"): ?>
+            <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
+            <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
+            <a href="<?= base_url('dashboard/pengaturan'); ?>" class="breadcrumb">Pengaturan</a>
+            <a class="breadcrumb">Add Tahun Ajaran</a>
+          <?php elseif($pages == "editthajaran"): ?>
+            <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
+            <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
+            <a href="<?= base_url('dashboard/pengaturan'); ?>" class="breadcrumb">Pengaturan</a>
+            <a class="breadcrumb">Edit Tahun Ajaran</a>
+          <?php elseif($pages == "editkuota"): ?>
+            <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
+            <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
+            <a href="<?= base_url('dashboard/pengaturan'); ?>" class="breadcrumb">Pengaturan</a>
+            <a class="breadcrumb">Edit Kuota</a>
           <?php endif; ?>
         </div>
       </div>
@@ -75,27 +106,35 @@
     <a class="subheader">Main</a>
   </li>
   <li>
-    <a href="<?= base_url('dashboard/datapendaftar'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">list</i>Data Pendaftar<span class="new badge grey">4</span></a>
+    <a href="<?= base_url('dashboard/datapendaftar'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">list</i>Data Pendaftar</a>
     <a href="<?= base_url('dashboard/seleksipendaftar'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">compare_arrows</i>Seleksi Pendaftar</a>
-    <a href="<?= base_url('dashboard/adduser'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">plus_one</i>Add New User</a>
+    <a href="<?= base_url('dashboard/daftarulang'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">done_all</i>Daftar Ulang</a>
+    
 
-    <a href="#!" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">people</i>Data Siswa</a>
+    <a href="<?= base_url('dashboard/datasiswa') ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">people</i>Data Siswa</a>
     <a href="#!" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">event_seat</i>Pembagian Kelas</a>
-    <a href="<?=base_url('index/test')?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">description</i>Export Laporan</a>
-    <a href="<?= base_url('dashboard/pengaturan') ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">settings</i>Pengaturan</a>
+    <a href="<?=base_url('dashboard/datablacklist')?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">block</i>Data Blacklist (Temporary)</a>
+
   </li>
   <li>
     <div class="divider"></div>
   </li>
   <li>
+    <a class="subheader">Admin Stuff</a>
+    <a href="<?= base_url('dashboard/adduser'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">plus_one</i>Tambah User</a>
+    <a href="<?= base_url('dashboard/adduser'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">people_outline</i>Daftar User</a>
+    <a href="<?= base_url('dashboard/pengaturan') ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">settings</i>Pengaturan</a>
+
+  </li>
+  <li>
     <a class="subheader">Logout</a>
   </li>
   <li>
-    <a href="#modal2" class="waves-effect red-text"><i class="material-icons" style="color: rgba(244, 67, 54, 1);">exit_to_app</i>Logout</a>
+    <a href="#modallogout" class="waves-effect red-text modal-trigger"><i class="material-icons" style="color: rgba(244, 67, 54, 1);">exit_to_app</i>Logout</a>
   </li>
 </ul>
 
-<div id="modal2" class="modal" style="width: 400px;">
+<div id="modallogout" class="modal" style="width: 400px;">
   <div class="modal-content">
     <h4>Logout</h4>
     <p>Apakah anda yakin untuk logout sekarang?</p>

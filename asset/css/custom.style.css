@@ -1,3 +1,6 @@
+.parallax img { 
+  width: 100%; 
+}
 div.material-table {
   padding: 0;
 }
@@ -41,8 +44,8 @@ div.material-table .table-header .actions {
 }
 
 div.material-table .table-header .btn-flat {
-    min-width: 36px;
-    padding: 0 8px;
+  min-width: 36px;
+  padding: 0 8px;
 }
 
 div.material-table .table-header input {

@@ -120,24 +120,37 @@ class Calonsiswa extends CI_Controller{
 			//---------------------------------------------
 			// alamat
 			//----------------------------------------------
-			/*if(!empty($this->input->post('rt'))){
+			if(!empty($this->input->post('rt'))){
 				$rt 	      		= 	$this->input->post('rt');
+			}else{
+				$rt  				= 	"0";
 			}
+
 			if(!empty($this->input->post('rw'))){
 				$rw 	      		= 	$this->input->post('rw');
+			}else{
+				$rw  				= 	"0";
 			}
+
 			if(!empty($this->input->post('desa'))){
 				$desa       		= 	$this->input->post('desa');
+			}else{
+				$desa  				= 	"0";
 			}
+
 
 			if(!empty($this->input->post('kodepos'))){
 				$kodepos      		= 	$this->input->post('kodepos');
+			}else{
+				$kodepos  			= 	"0";
 			}
+
 			
-			$kecamatan = "abc";
-			$kabupaten = "abc";
+			$kecamatan     		= 	$this->input->post('select_kecamatan');
+			$kabupaten     		= 	$this->input->post('select_kabupaten');
+
 			$alamat      		= 	"Desa ".$desa." RT. ".$rt." RW. ".$rw." Kecamatan "
-			.$kecamatan." Kabupaten ".$kabupaten." Kode Pos ".$kodepos;*/
+			.$kecamatan." Kabupaten ".$kabupaten." Kode Pos ".$kodepos;
 			//--------------------------------------------------
 			//end alamat
 			//------------------------------------------------
@@ -336,7 +349,7 @@ class Calonsiswa extends CI_Controller{
 				'jenis_kelamin'     =>   $jenis_kelamin,
 				'temp_lahir'       	=>   $tmp_lahir,
 				'tgl_lahir'       	=>   $tgl_lahir,
-				//'alamat'       		=>   $alamat,
+				'alamat'       		=>   $alamat,
 				'telp'       		=>   $telp,
 				'email'       		=>   $email,
 

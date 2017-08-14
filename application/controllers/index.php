@@ -1,5 +1,46 @@
 <?php
 class index extends CI_Controller{
+	function filldropdown(){
+		$this->load->model(array("m_daftar"));
+
+		$id = $this->uri->segment(4);
+		$dropdown = $this->uri->segment(3);
+
+		if (!isset($id) || !is_numeric($id)){
+			$reponse = array('success' => FALSE);
+		}else {
+
+			if($dropdown == "kecamatan"){
+				$rows = $this->m_daftar->get_kecamatan($id)->result();
+
+				$options = "";
+				foreach ($rows as $row) {
+					$options .= "<option value='". $row->id_kecamatan ."'>". $row->nm_kecamatan ."</option>";
+				}
+				$options .= "<option value='manual'>Masukkan Secara Manual</option>";
+
+
+			}else if($dropdown == "desa"){
+				$rows = $this->m_daftar->get_desa($id)->result();
+
+				$options = "";
+				foreach ($rows as $row) {
+					$options .= "<option value='". $row->id_desa ."'>". $row->nm_desa ."</option>";
+				}
+				$options .= "<option value='manual'>Masukkan Secara Manual</option>";
+
+			}
+			$response = array(
+				'success' => TRUE,
+				'options' => $options
+			);
+
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($response);
+	}
+
 	function test(){
 		//$this->db->;
 		$this->load->model(array("m_auth"));
@@ -144,11 +185,15 @@ class index extends CI_Controller{
 	}	
 
 	function pengumuman(){
-		$this->load->model("m_auth");
+		$this->load->model(array("m_auth","m_seleksi"));
 
-		$data["title"]			=	"Pengumuman Kelulusan";
-		$data["active"]			=	"pengumuman";
-		$data["content"]		=	"pages/v_pengumuman";
+		$data["title"]					=	"Pengumuman Kelulusan";
+		$data["active"]					=	"pengumuman";
+		$data["content"]				=	"pages/v_pengumuman";
+		$data["data_tav"]				=	$this->m_seleksi->get_data('tav','')->result();
+		$data["data_tkr"]				= 	$this->m_seleksi->get_data('tkr','')->result();
+		$data["data_tkj"]				= 	$this->m_seleksi->get_data('tkj','')->result();
+		$data["data_tab"]				= 	$this->m_seleksi->get_data('tab','')->result();
 
 		if($this->m_auth->isloggedin() == true){
 			$data["loggedin"]		=	true;
@@ -161,7 +206,7 @@ class index extends CI_Controller{
 
 
 	function daftar(){
-		$this->load->model(array("m_dashboard","m_auth"));
+		$this->load->model(array("m_dashboard","m_auth","m_daftar"));
 
 		$status = $this->uri->segment(2);
 
@@ -171,14 +216,22 @@ class index extends CI_Controller{
 			$data["title"]				=	"Pendaftaran";
 		}
 
-		$yearprevious					=	date("Y", strtotime("-1 year"));
-		$yearnow		 				=	date("Y");
-		$tahunajaran 					= 	$yearprevious . "/" . $yearnow;
+		//$yearprevious					=	date("Y", strtotime("-1 year"));
+		//$yearnow		 				=	date("Y");
+		//$tahunajaran 					= 	$yearprevious . "/" . $yearnow;
+		$tahun_skrng					=	date('Y');
+		$tahun_dulu						=	date('Y')-1;
+		$tahun							=	$tahun_dulu."/".$tahun_skrng;
 
+		//$data["data_kuota"]				=	$this->m_dashboard->get_datakuota('',$this->m_dashboard->get_tahunID($tahun));
+		
 		$data["active"]					=	"daftar";
 		$data["content"]				=	"pages/v_daftar";
-		$data["status_pendaftaran"]		= 	$this->m_dashboard->status_pendaftaran($tahunajaran);
+		$data["status_pendaftaran"]		= 	$this->m_dashboard->status_pendaftaran($tahun);
+		$data["waktu_pendaftaran"]		= 	$this->m_dashboard->get_timedaftar($tahun);
+		$data["jadwal_pendaftaran"]		= 	$this->m_dashboard->get_jadwaldaftar($tahun)->row();
 		$data["status"]					=	$status;
+		//$data["kecamatan"]				= 	$this->m_daftar->get_kecamatan()->result();
 
 		if($this->m_auth->isloggedin() == true){
 			$data["loggedin"]			=	true;
@@ -222,12 +275,18 @@ class index extends CI_Controller{
 
 
 	function dashboard(){
-		$this->load->model(array("m_auth","m_dashboard"));
+		$this->load->model(array("m_auth","m_dashboard","m_daftar"));
 
 		if($this->m_auth->isloggedin() == false){
 			redirect("");
 		}else{
 			$session 				= 	$this->session->all_userdata();
+
+			$tahun_skrng			=	date('Y');
+			$tahun_dulu				=	date('Y')-1;
+			$tahun					=	$tahun_dulu."/".$tahun_skrng;
+
+			$data["tahunajaran"]	= 	$tahun;
 
 			$data["uname"] 			= 	$session['username'];
 			//$data["email"] 			= 	$session['email'];
@@ -238,86 +297,31 @@ class index extends CI_Controller{
 			$data["active"]			=	"dashboard";
 			$data["pages"]			=	"dashboard";
 			$data["content"]		=	"pages/dashboard/main_dashboard";
-			$data["timelinedata"]	=	$this->m_dashboard->getalltimeline();
+			$data["totaldata_tav"]	=	$this->m_daftar->tampil_data('0')->num_rows();
+			$data["totaldata_tkr"]	=	$this->m_daftar->tampil_data('1')->num_rows();
+			$data["totaldata_tkj"]	=	$this->m_daftar->tampil_data('2')->num_rows();
+			$data["totaldata_tab"]	=	$this->m_daftar->tampil_data('3')->num_rows();
 
-			$yearprevious				=	date("Y", strtotime("-1 year"));
-			$yearnow		 			=	date("Y");
-			$tahunajaran 				= 	$yearprevious . "/" . $yearnow;
-			$data["tahunajaran"]		= 	$tahunajaran;
+			if(!empty($this->m_dashboard->get_datakuota('withyear',$this->m_dashboard->get_tahunID($tahun))->row())){
+				$data["data_kuota"]		=	$this->m_dashboard->get_datakuota('withyear',$this->m_dashboard->get_tahunID($tahun))->row();
+				$data["total_kuota"] = $data["data_kuota"]->kuota_tav + $data["data_kuota"]->kuota_tkr + $data["data_kuota"]->kuota_tkj + $data["data_kuota"]->kuota_tab;
+			}else{
+				//$data["data_kuota"]	= '0';
+				$data["data_kuota"]		=	$this->m_dashboard->get_datakuota('withyear',$this->m_dashboard->get_tahunID($tahun))->row();
+				$data["total_kuota"] = '0';
+			}
 
-			//$row 						= $this->m_dashboard->status_pendaftaran($tahunajaran)->row();
-			$data["status_pendaftaran"]	= $this->m_dashboard->status_pendaftaran($tahunajaran);
+			$data["total_pendaftar"] = $data["totaldata_tav"] + $data["totaldata_tkr"] + $data["totaldata_tkj"] + $data["totaldata_tab"];
+		
 
-
-			//pagination
-			$config 				= 	array();
-			$config["base_url"] 	= 	base_url() . "dashboard";
-			$config["total_rows"] 	= 	$this->m_dashboard->timeline_rows();
-			$config["per_page"] 	= 	3;
-			$config["uri_segment"] 	= 	3;
-
-
-			$this->pagination->initialize($config);
-
-			$page 					= 	($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
-			$data["results"] 		= 	$this->m_dashboard->fetch_timeline($config["per_page"], $page);
-			$str_links 				= 	$this->pagination->create_links();
-			$data["links"] 			= 	explode('&nbsp;',$str_links );
-			//$data["links"] 			= 	$this->pagination->create_links();
+			$data["status_pendaftaran"]	= $this->m_dashboard->status_pendaftaran($tahun);
 
 
 			$this->load->view("template/main_template",$data);
 		}
 	}	
 
-	function pengaturan(){
-		$this->load->model(array("m_auth","m_dashboard"));
 
-		if($this->m_auth->isloggedin() == false){
-			redirect("");
-		}else{
-			$session 				= 	$this->session->all_userdata();
-
-			$data["uname"] 			= 	$session['username'];
-			//$data["email"] 			= 	$session['email'];
-			$data["date_joined"] 	= 	$session['date_joined'];
-			$data["loggedin"] 		= 	$session['loggedin'];
-
-			$data["title"]			=	"Pengaturan";
-			$data["active"]			=	"dashboard";
-			$data["pages"]			=	"dashboard";
-			$data["content"]		=	"pages/dashboard/v_pengaturan";
-			$data["timelinedata"]	=	$this->m_dashboard->getalltimeline();
-
-			$yearprevious				=	date("Y", strtotime("-1 year"));
-			$yearnow		 			=	date("Y");
-			$tahunajaran 				= 	$yearprevious . "/" . $yearnow;
-			$data["tahunajaran"]		= 	$tahunajaran;
-
-			//$row 						= $this->m_dashboard->status_pendaftaran($tahunajaran)->row();
-			$data["status_pendaftaran"]	= $this->m_dashboard->status_pendaftaran($tahunajaran);
-
-
-			//pagination
-			$config 				= 	array();
-			$config["base_url"] 	= 	base_url() . "dashboard";
-			$config["total_rows"] 	= 	$this->m_dashboard->timeline_rows();
-			$config["per_page"] 	= 	3;
-			$config["uri_segment"] 	= 	3;
-
-
-			$this->pagination->initialize($config);
-
-			$page 					= 	($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
-			$data["results"] 		= 	$this->m_dashboard->fetch_timeline($config["per_page"], $page);
-			$str_links 				= 	$this->pagination->create_links();
-			$data["links"] 			= 	explode('&nbsp;',$str_links );
-			//$data["links"] 			= 	$this->pagination->create_links();
-
-
-			$this->load->view("template/main_template",$data);
-		}
-	}	
 
 	function editprofile(){
 		$this->load->model(array("m_auth","m_profile"));
@@ -380,23 +384,115 @@ class index extends CI_Controller{
 			$data["pages"]				=	"datapendaftar";
 			$data["active"]				=	"dashboard";
 			$data["content"]			=	"pages/dashboard/data_pendaftar";
-			$data["data_pendaftar"] 	=	$this->m_daftar->tampil_data()->result();
+			$data["data_tav"]		 	=	$this->m_daftar->tampil_data('0')->result();
+			$data["data_tkr"]		 	=	$this->m_daftar->tampil_data('1')->result();
+			$data["data_tkj"] 			=	$this->m_daftar->tampil_data('2')->result();
+			$data["data_tab"] 			=	$this->m_daftar->tampil_data('3')->result();
+
+			$this->load->view("template/main_template",$data);
+		}
+	}
+
+	function datasiswa(){
+		$this->load->model(array("m_auth","m_datasiswa"));
+
+		if($this->m_auth->isloggedin() == false){
+			redirect("");
+		}else{
+			$data["title"]				=	"Data Siswa";
+			$data["pages"]				=	"datasiswa";
+			$data["active"]				=	"dashboard";
+			$data["content"]			=	"pages/dashboard/v_datasiswa";
+			$data["data_tav"]		 	=	$this->m_datasiswa->get_data('all','0')->result();
+			$data["data_tkr"]		 	=	$this->m_datasiswa->get_data('all','1')->result();
+			$data["data_tkj"] 			=	$this->m_datasiswa->get_data('all','2')->result();
+			$data["data_tab"] 			=	$this->m_datasiswa->get_data('all','3')->result();
+
+			$this->load->view("template/main_template",$data);
+		}
+	}
+
+	function datablacklist(){
+		$this->load->model(array("m_auth","m_blacklist"));
+
+		if($this->m_auth->isloggedin() == false){
+			redirect("");
+		}else{
+			$data["title"]				=	"Data Blacklist";
+			$data["pages"]				=	"datablacklist";
+			$data["active"]				=	"dashboard";
+			$data["content"]			=	"pages/dashboard/v_blacklist";
+			$data["data"]		 		=	$this->m_blacklist->get_data()->result();
 
 			$this->load->view("template/main_template",$data);
 		}
 	}
 
 	function seleksipendaftar(){
-		$this->load->model(array("m_auth","m_daftar"));
+		$this->load->model(array("m_auth","m_daftar","m_seleksi"));
 
 		if($this->m_auth->isloggedin() == false){
 			redirect("");
 		}else{
-			$data["title"]				=	"Seleksi Data Pendaftar";
-			$data["pages"]				=	"seleksipendaftar";
-			$data["active"]				=	"dashboard";
-			$data["content"]			=	"pages/dashboard/seleksi_pendaftar";
-			//$data["seleksiPendaftar"] 	=	$this->m_daftar->tampil_data()->result();
+			$size 					= 	$this->m_seleksi->get_data('all','')->num_rows();
+			$sizeDataCalonSiswa 	=	$this->m_daftar->get_data()->num_rows();
+
+
+			if($size == 0){	
+				foreach ($this->m_daftar->tampil_data("with_prestasi")->result() as $row) {
+					$this->m_seleksi->insert_data($row->id_pendaftar,$row->skhu,$row->nilai_prestasi,$row->nilai_sertifikat);
+				}
+			}else if($size != $sizeDataCalonSiswa){
+				foreach ($this->m_daftar->tampil_data("with_prestasi")->result() as $row) {
+					if($this->m_seleksi->check_data($row->id_pendaftar)->num_rows() == 0){
+						$this->m_seleksi->insert_data($row->id_pendaftar,$row->skhu,$row->nilai_prestasi,$row->nilai_sertifikat);
+					}
+				}	
+			}
+
+			$data["title"]					=	"Seleksi Data Pendaftar";
+			$data["pages"]					=	"seleksipendaftar";
+			$data["active"]					=	"dashboard";
+			$data["content"]				=	"pages/dashboard/seleksi_pendaftar";
+			$data["data"]				 	=	$this->m_seleksi->get_nilai()->result();
+			$data["data_hasilseleksi"]		= 	$this->m_seleksi->get_data('allwithname','')->result();
+			//$data["data_checkwawancara"]	=	$this->m_seleksi->check_nilaiwawancara()->result();
+
+			$this->load->view("template/main_template",$data);
+		}
+	}	
+
+	function daftarulang(){
+		$this->load->model(array("m_auth","m_daftarulang","m_seleksi"));
+
+		if($this->m_auth->isloggedin() == false){
+			redirect("");
+		}else{
+
+			/*$size 					= 	$this->m_seleksi->get_data('all','')->num_rows();
+			$sizeDataCalonSiswa 	=	$this->m_daftar->get_data()->num_rows();*/
+
+			$size_daftarulang 	= 	$this->m_daftarulang->get_data('all','')->num_rows();
+			$size_seleksi	 	= 	$this->m_seleksi->get_data('all','')->num_rows();
+
+			if($size_daftarulang == 0){	
+				foreach ($this->m_seleksi->get_data("onlylulus",'')->result() as $row) {
+					$this->m_daftarulang->insert_data($row->id_pendaftar);
+				}
+			}else if($size_daftarulang != $size_seleksi){
+				foreach ($this->m_seleksi->get_data("onlylulus",'')->result() as $row) {
+					if($this->m_daftarulang->check_data($row->id_pendaftar)->num_rows() == 0){
+						$this->m_daftarulang->insert_data($row->id_pendaftar);
+					}
+				}	
+			}
+
+			$data["title"]					=	"Daftar Ulang";
+			$data["pages"]					=	"daftarulang";
+			$data["active"]					=	"dashboard";
+			$data["content"]				=	"pages/dashboard/daftar_ulang";
+			$data["data"]				 	=	$this->m_daftarulang->get_data('allwithlulus','')->result();
+			//$data["data_checkwawancara"]	=	$this->m_seleksi->check_nilaiwawancara()->result();
 
 			$this->load->view("template/main_template",$data);
 		}
@@ -435,6 +531,122 @@ class index extends CI_Controller{
 			$this->load->view("template/main_template",$data);
 		}
 	}
+
+
+
+	/*
+	*
+	*
+	*		PENGATURAN
+	*
+	*
+	*/
+
+
+	function pengaturan(){
+		$this->load->model(array("m_auth","m_dashboard"));
+
+		if($this->m_auth->isloggedin() == false){
+			redirect("");
+		}else{
+			$session 				= 	$this->session->all_userdata();
+
+			$tahun_skrng			=	date('Y');
+			$tahun_dulu				=	date('Y')-1;
+			$tahun					=	$tahun_dulu."/".$tahun_skrng;
+
+			$data["uname"] 			= 	$session['username'];
+			//$data["email"] 			= 	$session['email'];
+			$data["date_joined"] 	= 	$session['date_joined'];
+			$data["loggedin"] 		= 	$session['loggedin'];
+
+			$data["title"]			=	"Pengaturan";
+			$data["active"]			=	"dashboard";
+			$data["pages"]			=	"pengaturan";
+			$data["content"]		=	"pages/dashboard/v_pengaturan";
+			$data["data_kuota"]		=	$this->m_dashboard->get_datakuota('withyear',$this->m_dashboard->get_tahunID($tahun))->result();
+			$data["data_bobot"]		=	$this->m_dashboard->get_bobotnilai();
+			$data["peng_thAjaran"]	=	$this->m_dashboard->get_datathajaran('all','');
+
+			$this->load->view("template/main_template",$data);
+		}
+	}	
+
+
+	function addthajaran(){
+		$this->load->model(array("m_auth","m_dashboard"));
+
+		if($this->m_auth->isloggedin() == false){
+			redirect("");
+		}else{
+			$session 				= 	$this->session->all_userdata();
+
+			$data["uname"] 			= 	$session['username'];
+			//$data["email"] 			= 	$session['email'];
+			$data["date_joined"] 	= 	$session['date_joined'];
+			$data["loggedin"] 		= 	$session['loggedin'];
+
+			$data["title"]			=	"Add Tahun Ajaran";
+			$data["active"]			=	"dashboard";
+			$data["pages"]			=	"addthajaran";
+			$data["content"]		=	"pages/dashboard/v_add_thajaran";
+			//$data["peng_thAjaran"]	=	$this->m_dashboard->pengaturan_thajaran();
+
+			$this->load->view("template/main_template",$data);
+		}
+	}	
+
+
+	function editthajaran(){
+		$this->load->model(array("m_auth","m_dashboard"));
+
+		$id = $this->uri->segment(5);
+
+		if($this->m_auth->isloggedin() == false){
+			redirect("");
+		}else{
+			$session 				= 	$this->session->all_userdata();
+
+			$data["uname"] 			= 	$session['username'];
+			//$data["email"] 			= 	$session['email'];
+			$data["date_joined"] 	= 	$session['date_joined'];
+			$data["loggedin"] 		= 	$session['loggedin'];
+
+			$data["title"]			=	"Edit Tahun Ajaran";
+			$data["active"]			=	"dashboard";
+			$data["pages"]			=	"editthajaran";
+			$data["content"]		=	"pages/dashboard/v_edit_thajaran";
+			$data["data_thajaran"]		=	$this->m_dashboard->get_datathajaran('one',$id);
+
+			$this->load->view("template/main_template",$data);
+		}
+	}
+
+	function editkuota(){
+		$this->load->model(array("m_auth","m_dashboard"));
+
+		$id = $this->uri->segment(5);
+
+		if($this->m_auth->isloggedin() == false){
+			redirect("");
+		}else{
+			$session 				= 	$this->session->all_userdata();
+
+			$data["uname"] 			= 	$session['username'];
+			//$data["email"] 			= 	$session['email'];
+			$data["date_joined"] 	= 	$session['date_joined'];
+			$data["loggedin"] 		= 	$session['loggedin'];
+
+			$data["title"]			=	"Edit Kuota";
+			$data["active"]			=	"dashboard";
+			$data["pages"]			=	"editkuota";
+			$data["content"]		=	"pages/dashboard/v_edit_kuota";
+			$data["data_kuota"]		=	$this->m_dashboard->get_datakuota('',$id);
+
+			$this->load->view("template/main_template",$data);
+		}
+	}
+
 
 
 	/*

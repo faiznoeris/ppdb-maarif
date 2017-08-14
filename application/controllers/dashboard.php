@@ -38,12 +38,11 @@ class dashboard extends CI_Controller{
 	}
 
 	function aktifkanpendaftaran(){
-		$yearprevious				=	date("Y", strtotime("-1 year"));
-		$yearnow		 			=	date("Y");
-		$tahunajaran 				= 	$yearprevious . "/" . $yearnow;
-		$data["tahunajaran"]		= 	$tahunajaran;
+		$year1 						= $this->uri->segment(3);
+		$year2 						= $this->uri->segment(4);
+		$year 						= $year1."/".$year2;
 
-		if($this->m_dashboard->set_status_pendaftaran($tahunajaran, '1')){
+		if($this->m_dashboard->set_status_pendaftaran($year, 'aktif')){
 			redirect("dashboard");
 		}else{
 			redirect("dashboard");
@@ -51,12 +50,11 @@ class dashboard extends CI_Controller{
 	}
 
 	function hentikanpendaftaran(){
-		$yearprevious				=	date("Y", strtotime("-1 year"));
-		$yearnow		 			=	date("Y");
-		$tahunajaran 				= 	$yearprevious . "/" . $yearnow;
-		$data["tahunajaran"]		= 	$tahunajaran;
+		$year1 						= $this->uri->segment(3);
+		$year2 						= $this->uri->segment(4);
+		$year 						= $year1."/".$year2;
 
-		if($this->m_dashboard->set_status_pendaftaran($tahunajaran, '0')){
+		if($this->m_dashboard->set_status_pendaftaran($year, 'nonaktif')){
 			redirect("dashboard");
 		}else{
 			redirect("dashboard");

@@ -2,24 +2,26 @@
 
 
 
-<div class="container"  style="padding: 32px 88px 0px 88px; width: 1500px;">
+<div class="container"  style="padding: 32px 38px 0px 38px; width: 1500px;">
+
+
  <div class="row">
   <div class="col s12">
-    <ul class="tabs green darken-1 z-depth-2">
-      <li class="tab col s3"><a class="white-text waves-effect waves-light tooltipped" data-position="left" data-delay="50" data-tooltip="Lihat data khusus jurusan TKJ" href="#jurusan_tkj">Jurusan TKJ</a></li>
-      <li class="tab col s3"><a class="white-text waves-effect waves-light tooltipped" data-position="top" data-delay="50" data-tooltip="Lihat data khusus jurusan TAV" href="#jurusan_tkj">Jurusan TAV</a></li>
-      <li class="tab col s3"><a class="white-text waves-effect waves-light tooltipped" data-position="top" data-delay="50" data-tooltip="Lihat data khusus jurusan TAB" href="#jurusan_tkj">Jurusan TAB</a></li>
-      <li class="tab col s3"><a class="white-text waves-effect waves-light tooltipped" data-position="right" data-delay="50" data-tooltip="Lihat data khusus jurusan TKR" href="#jurusan_tkj">Jurusan TKR</a></li>
+    <ul class="tabs grey darken-1 z-depth-2">
+      <li class="tab col s3"><a class="white-text waves-effect waves-light" href="#input_wawancara">Input Nilai Wawancara</a></li>
+      <li class="tab col s3"><a class="white-text waves-effect waves-light" href="#hasil_seleksi">Hasil Seleksi</a></li>
     </ul>
   </div>
 </div>
-<div class="row" >
+
+
+<div class="row" id="input_wawancara">
   <div id="admin" class="col s12">
     <div class="card material-table">
       <div class="table-header">
-        <span class="table-title">Material Datatable</span>
+        <span class="table-title">Data Pendaftar</span>
         <div class="actions">
-          <a href="#add_users" class="modal-trigger waves-effect btn-flat nopadding"><i class="material-icons">person_add</i></a>
+
           <a href="#" class="search-toggle waves-effect btn-flat nopadding"><i class="material-icons">search</i></a>
         </div>
       </div>
@@ -27,58 +29,146 @@
         <thead>
           <tr>
             <th width="50">No</th>
-            <th width="300">Nama</th>
-            <th width="250">Asal Sekolah</th>
-            <th width="150">L/P</th>
+            <th width="100">ID Pendaftar</th>
+            <th>Nama Pendaftar</th>
             <th>Nilai UN</th>
-            <th>Aksi</th>
+            <th>Nilai Prestasi</th>
+            <th>Nilai Sertifikat</th>
+            <th width="220">Nilai Wawancara</th>
+            <th width="130">Aksi</th>
           </tr>
         </thead>
         <tbody>
           <?php
           $no = 1;
-          
-          foreach ($seleksiPendaftar as $Spendf) {
-            echo "<tr>
-            <td>".$no."</td>
-            <td>".$Spendf->nm_lengkap."</td>
-            <td>".$Spendf->asal_sekolah."</td>
-            <td>".$Spendf->jenis_kelamin."</td>
-            <td>".$Spendf->skhu."</td>
-            <td>
-            <a class='btn-floating btn-small tooltipped green darken-2' data-position='left' data-delay='50' data-tooltip='Edit Data Siswa' href='<?= base_url('/editdatasiswa'); ?>'>
-            <i class='material-icons' style='height: 20px;'>mode_edit</i>
-            </a>
-            <a class='btn-floating btn-small tooltipped yellow darken-2' data-position='top' data-delay='50' data-tooltip='Lihat Detail Data Siswa' href='#modal1'>
-            <i class='material-icons' style='height: 20px;'>remove_red_eye</i>
-            </a> 
-            <a class='btn-floating btn-small tooltipped red darken-2' data-position='right' data-delay='50' data-tooltip='Delete Siswa' href='#modal1'>
-            <i class='material-icons' style='height: 20px;'>delete</i>
-            </a> 
-            </td>
-            </tr>";
-            $no++;
+
+          foreach ($data as $row) {
+            $idpendaftar = $row->id_pendaftar;
+            if(!($row->nilai_wawancara > 0)){
+              echo "
+              <tr>
+              <td>".$no."</td>
+              <td>#".$row->id_pendaftar."</td>
+              <td>".$row->nm_lengkap."</td>
+              <td>".$row->skhu."</td>
+              <td>".$row->nilai_prestasi."</td>
+              <td>".$row->nilai_sertifikat."</td>
+              <form id='formValidate' method='post' action='".base_url('seleksi/inputwawancara/'.$row->id_pendaftar)."'>
+              <td><div class='input-field'><input type='number' name='nilai_wawancara' id='nilai_wawancara' style='width: 130px;'/></div>
+              <input type='hidden' name='id_pendaftar[]' value='".$row->id_pendaftar."'/>
+              <input type='hidden' name='nilai_un[]' value='".$row->skhu."'/></td>
+              <td><button class='btn cyan waves-effect grey darken-2' type='submit' name='action'>Save</button></td>
+              </form>
+              </tr>";
+              $no++;
+            }
+            
           }
           ?>
         </tbody>
       </table>
+          <!--<div style="padding: 0px 0px 20px 25px; ">
+            <button class="btn cyan waves-effect grey darken-2" type="submit" name="action">Save</button>
+          </div>-->
+
+        </div>
+      </div>
     </div>
+
+
+
+    <div class="row" id="hasil_seleksi">
+      <div id="admin" class="col s12">
+        <div class="card material-table">
+          <div class="table-header">
+            <span class="table-title">Data Hasil Seleksi</span>
+            <div class="actions">
+
+              <a href="#" class="search-toggle waves-effect btn-flat nopadding"><i class="material-icons">search</i></a>
+            </div>
+          </div>
+          <table id="datatableHasilSeleksi">
+            <thead>
+              <tr>
+                <th width="50">No</th>
+                <th width="100">ID Pendaftar</th>
+                <th>Nama Pendaftar</th>
+                <th>Nilai UN</th>
+                <th>Nilai Prestasi</th>
+                <th>Nilai Sertifikat</th>
+                <th>Nilai Wawancara</th>
+                <th>Nilai Akhir</th>
+                <th>Keterangan</th>
+                <th width="150">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
+              $no = 1;
+
+              foreach ($data_hasilseleksi as $row) {
+                echo "
+                <tr>
+                <td>".$no."</td>
+                <td>#".$row->id_pendaftar."</td>
+                <td>".$row->nm_lengkap."</td>
+                <td>".$row->nilai_un."</td>
+                <td>".$row->nilai_prestasi."</td>
+                <td>".$row->nilai_sertifikat."</td>
+                <td>".$row->nilai_wawancara."
+                <input type='hidden' name='id_pendaftar[]' value='".$row->id_pendaftar."'/>
+                <input type='hidden' name='nilai_un[]' value='".$row->nilai_un."'/>
+                </td>
+                <td>".$row->nilai_akhir."</td>
+                <td>".$row->keterangan."</td>
+                <td>";
+
+                if($row->nilai_akhir == "0"){
+                  echo "
+                  <a class='white-text waves-effect waves-light btn tooltipped grey darken-3' data-position='bottom' data-delay='50' data-tooltip='Lakukan proses penilaian nilai akhir untuk pendaftar dengan ID ".$row->id_pendaftar."' href='". base_url('seleksi/hitungnilaiakhir/one/'.$row->id_pendaftar)."'>Hitung NA</a>";
+                }else{
+                  echo "-";
+                }
+
+                echo "</td></tr>";
+
+                $no++;
+              }
+              ?>
+            </tbody>
+          </table>
+          <div style="padding: 0px 0px 20px 25px; ">
+            <a class="waves-effect waves-light btn tooltipped grey darken-3" data-position="bottom" data-delay="50" data-tooltip="Lakukan proses penilaian nilai akhir untuk semua data pendaftar yang sudah diinput nilai wawancaranya" href="<?= base_url('/seleksi/hitungnilaiakhir/all'); ?>">Hitung Semua Nilai Akhir</a>
+            <a class="waves-effect waves-light btn tooltipped grey darken-3" data-position="bottom" data-delay="50" data-tooltip="Reset semua nilai akhir menjadi 0" href="<?= base_url('/seleksi/hitungnilaiakhir/reset'); ?>">Reset</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+
   </div>
-</div>
 
+  <br><br>
 
-<!-- Modal Structure -->
-<div id="modal1" class="modal" style="width: 400px;">
-  <div class="modal-content">
-    <h4>Delete Data Siswa</h4>
-    <p><b>!WARNING!</b> This can't be undone!</p>
-  </div>
-  <div class="modal-footer centered">
-    <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Ok</a>
-    <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
-  </div>
-</div>
+  <style type="text/css">
+  .input-field div.error{
+    position: relative;
+    top: -1rem;
+    font-size: 0.8rem;
+    color:#FF4081;
+    -webkit-transform: translateY(0%);
+    -ms-transform: translateY(0%);
+    -o-transform: translateY(0%);
+    transform: translateY(0%);
+  }
+  .input-field .prefix.active {
+    color: green !important;
+  }
 
-<br><br>
-
-<br><br>
+  .row .input-field input:focus {
+    border-bottom: 1px solid green !important;
+    box-shadow: 0 1px 0 0 green !important
+  }
+</style>
