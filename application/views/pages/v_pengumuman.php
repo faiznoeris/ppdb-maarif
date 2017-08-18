@@ -31,7 +31,7 @@
 
               foreach ($data_tav as $row) {
                 echo "
-                <tr class='tr_pengumuman' id='".$row->id_pendaftar."'>
+                <tr class='tr_click' id='".$row->id_pendaftar."'>
                 <td>".$no."</td>
                 <td>#".$row->id_pendaftar."</td>
                 <td>".$row->nm_lengkap."</td>
@@ -94,7 +94,7 @@
 
               foreach ($data_tkr as $row) {
                 echo "
-                <tr class='tr_pengumuman' id='".$row->id_pendaftar."'>
+                <tr class='tr_click' id='".$row->id_pendaftar."'>
                 <td>".$no."</td>
                 <td>#".$row->id_pendaftar."</td>
                 <td>".$row->nm_lengkap."</td>
@@ -157,7 +157,7 @@
 
               foreach ($data_tkj as $row) {
                 echo "
-                <tr class='tr_pengumuman' id='".$row->id_pendaftar."'>
+                <tr class='tr_click' id='".$row->id_pendaftar."'>
                 <td>".$no."</td>
                 <td>#".$row->id_pendaftar."</td>
                 <td>".$row->nm_lengkap."</td>
@@ -223,7 +223,7 @@
 
               foreach ($data_tab as $row) {
                 echo "
-                <tr class='tr_pengumuman' id='".$row->id_pendaftar."'>
+                <tr class='tr_click' id='".$row->id_pendaftar."'>
                 <td>".$no."</td>
                 <td>#".$row->id_pendaftar."</td>
                 <td>".$row->nm_lengkap."</td>

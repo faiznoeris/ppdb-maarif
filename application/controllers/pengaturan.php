@@ -2,7 +2,7 @@
 class Pengaturan extends CI_Controller{
 	function __construct(){
 		parent::__construct();
-		$this->load->model(array("m_auth","m_dashboard")); 
+		$this->load->model(array("m_user","m_tahunajaran","m_kuota","m_bobot_nilai","m_biaya")); 
 	}
 
 	function addtahunAjaran(){
@@ -25,16 +25,16 @@ class Pengaturan extends CI_Controller{
 				"tgl_terakhir"    =>	$tgl_akhir,
 				"waktu_pendaftaran" => $waktu,
 				"status"			=>	"nonaktif"
-				);
+			);
 			//echo $nama;
 
-			if($this->m_dashboard->check_th($tahun) > 0){
+			if($this->m_tahunajaran->get_tahun($tahun) > 0){
 				$this->session->set_tempdata('toastaddTHajaranFail', true, 5);
 				redirect("dashboard/pengaturan");
 			}else{
 				$this->session->set_tempdata('toastaddTHajaranSuccess', true, 3);
-				$this->m_dashboard->post_thajaran($data);
-				$this->m_dashboard->input_kuota($this->m_dashboard->getLastIDTahun());
+				$this->m_tahunajaran->insert_thajaran($data);
+				$this->m_kuota->insert_kuota($this->m_tahunajaran->getLastIDTahun());
 				redirect("dashboard/pengaturan");
 			}
 		}else{
@@ -62,7 +62,7 @@ class Pengaturan extends CI_Controller{
 				"status"			=>	$status
 			);
 			//echo $nama;
-			$this->m_dashboard->update_thajaran($data,$id);
+			$this->m_tahunajaran->update_thajaran($data,$id);
 			redirect("dashboard/pengaturan");
 		}else{
 			
@@ -108,7 +108,7 @@ class Pengaturan extends CI_Controller{
 				"sertifikat_dasar"		=>	$sertifikat_dasar
 			);
 
-			$this->m_dashboard->update_bobot($data);
+			$this->m_bobot_nilai->update_bobot($data);
 			$this->session->set_tempdata('toastEditBobotSukses', true, 3);
 			redirect("dashboard/pengaturan");
 		}else{
@@ -134,10 +134,90 @@ class Pengaturan extends CI_Controller{
 				"kuota_tab"	=>	$tab,
 			);
 
-			$this->m_dashboard->update_kuota($data,$id);
+			$this->m_kuota->update_kuota($data,$id);
 			$this->session->set_tempdata('toastEditKuotaSukses', true, 3);
 			redirect("dashboard/pengaturan");
 		}else{
+			redirect("dashboard/pengaturan");
+		}
+		
+	}
+
+
+	function addbiaya(){
+
+		if(!empty($_POST)){
+			$uraian		= 	$this->input->post('uraian');
+			$tahun		= 	$this->input->post('tahun');
+			$nominal	= 	$this->input->post('nominal');
+			$jurusan	=	$this->input->post('jurusan');
+
+			$data           =	array(
+				"uraian"		=>	$uraian,
+				"id_tahun"		=>	$tahun,
+				"nominal"    	=>	$nominal,
+				"jurusan"		=>	$jurusan
+			);
+
+			if($this->m_biaya->input_biaya($data)){
+				redirect("dashboard/pengaturan");				
+			}else{
+				redirect("dashboard/pengaturan");
+			}
+		
+		}else{
+			redirect("dashboard/pengaturan");
+		}
+	}
+
+	function editbiaya(){
+		if(!empty($_POST)){
+			// $id 		=	$this->uri->segment(3);
+			// $uraian		= 	$this->input->post('uraian');
+			// $tahun		= 	$this->input->post('tahun');
+			// $nominal	= 	$this->input->post('nominal');
+
+			$id_biaya 	=	$this->input->post('id_biaya');
+
+			foreach( $id_biaya as $id) {
+				if(!empty($this->input->post('uraian'.$id))){
+					$uraian		= 	$this->input->post('uraian'.$id);
+				}else{
+					$uraian		= 	"";
+				}
+				
+				if(!empty($this->input->post('nominal'.$id))){
+					$nominal	= 	$this->input->post('nominal'.$id);
+				}else{
+					$nominal	= 	"";
+				}
+
+				if($uraian == "" && $nominal == ""){
+					continue;
+				}
+
+				$data       =	array(
+					"uraian"		=>	$uraian,
+					"nominal"    	=>	$nominal
+				);
+
+
+				$this->m_biaya->update($data,$id);
+
+				//print "The name is ".$uraian." and email is ".$nominal.", thank you<br>";
+			}
+
+			// $data       =	array(
+			// 	"uraian"		=>	$uraian,
+			// 	"id_tahun"		=>	$tahun,
+			// 	"nominal"    	=>	$nominal
+			// );
+			//echo "$id.".".$uraian.".".$tahun.".".$nominal";
+
+			// $this->m_dashboard->edit_biaya($data,$id);
+			redirect("dashboard/pengaturan");
+		}else{
+			
 			redirect("dashboard/pengaturan");
 		}
 		

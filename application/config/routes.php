@@ -80,12 +80,15 @@ $route['dashboard/datapendaftar/edit/(:num)'] = 'index/editdatapendaftar/$1';
 $route['dashboard/datapendaftar/view/(:num)'] = 'index/lihatdatapendaftar/$1';
 
 $route['dashboard/adduser'] = 'index/adduser';
+$route['dashboard/daftaruser'] = 'index/daftaruser';
 
 
 $route['dashboard/pengaturan'] = 'index/pengaturan';
 $route['dashboard/pengaturan/thajaran/add'] = 'index/addthajaran';
 $route['dashboard/pengaturan/thajaran/edit/(:num)'] = 'index/editthajaran/$1';
 $route['dashboard/pengaturan/kuota/edit/(:num)'] = 'index/editkuota/$1';
+$route['dashboard/pengaturan/biaya/add'] = 'index/addbiaya';
+$route['dashboard/pengaturan/biaya/edit/(:num)/(:any)'] = 'index/editbiaya/$1/$2';
 
 
 $route['dashboard/datasiswa'] = 'index/datasiswa';

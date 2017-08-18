@@ -36,6 +36,10 @@
             <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
             <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
             <a class="breadcrumb">Add New User</a>
+          <?php elseif($pages == "daftaruser"): ?>
+            <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
+            <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
+            <a class="breadcrumb">Daftar User</a>
           <?php elseif($pages == "editdatapendaftar"): ?>
             <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
             <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
@@ -69,6 +73,16 @@
             <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
             <a href="<?= base_url('dashboard/pengaturan'); ?>" class="breadcrumb">Pengaturan</a>
             <a class="breadcrumb">Edit Kuota</a>
+          <?php elseif($pages == "editbiaya"): ?>
+            <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
+            <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
+            <a href="<?= base_url('dashboard/pengaturan'); ?>" class="breadcrumb">Pengaturan</a>
+            <a class="breadcrumb">Edit Biaya</a>
+          <?php elseif($pages == "addbiaya"): ?>
+            <a href="<?= base_url(''); ?>" class="breadcrumb">Home</a>
+            <a href="<?= base_url('dashboard'); ?>" class="breadcrumb">Dashboard</a>
+            <a href="<?= base_url('dashboard/pengaturan'); ?>" class="breadcrumb">Pengaturan</a>
+            <a class="breadcrumb">Add Biaya</a>
           <?php endif; ?>
         </div>
       </div>
@@ -112,20 +126,27 @@
     
 
     <a href="<?= base_url('dashboard/datasiswa') ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">people</i>Data Siswa</a>
-    <a href="#!" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">event_seat</i>Pembagian Kelas</a>
+    <a href="#modalkelas" class="waves-effect modal-trigger"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">event_seat</i>Pembagian Kelas</a>
     <a href="<?=base_url('dashboard/datablacklist')?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">block</i>Data Blacklist (Temporary)</a>
 
   </li>
   <li>
     <div class="divider"></div>
   </li>
-  <li>
-    <a class="subheader">Admin Stuff</a>
-    <a href="<?= base_url('dashboard/adduser'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">plus_one</i>Tambah User</a>
-    <a href="<?= base_url('dashboard/adduser'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">people_outline</i>Daftar User</a>
-    <a href="<?= base_url('dashboard/pengaturan') ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">settings</i>Pengaturan</a>
 
-  </li>
+  <?php $session = $this->session->all_userdata(); ?>
+  <?php if($session['user_lvl'] == 0): ?>
+
+    <li>
+      <a class="subheader">Admin Stuff</a>
+      <a href="<?= base_url('dashboard/adduser'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">plus_one</i>Tambah User</a>
+      <a href="<?= base_url('dashboard/daftaruser'); ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">people_outline</i>Daftar User</a>
+      <a href="<?= base_url('dashboard/pengaturan') ?>" class="waves-effect"><i class="material-icons" style="color: rgba(66, 66, 66, 1);">settings</i>Pengaturan</a>
+
+    </li>
+
+  <?php endif; ?>
+
   <li>
     <a class="subheader">Logout</a>
   </li>
@@ -142,5 +163,16 @@
   <div class="modal-footer centered">
     <a href="<?= base_url('/authentication/logout'); ?>" class="modal-action modal-close waves-effect waves-green btn-flat">Ya</a>
     <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Tidak</a>
+  </div>
+</div>
+
+<div id="modalkelas" class="modal" style="width: 600px;">
+  <div class="modal-content">
+    <h4>Pembagian Kelas (MOS/Reguler)</h4>
+    <p>Lakukan pembagian kelas sekarang? Pilih tombol dibawah untuk melakukan proses pembagian kelas untuk MOS / Reguler.</p>
+  </div>
+  <div class="modal-footer centered">
+    <a href="<?= base_url('/laporan/kelasmos'); ?>" class="modal-action modal-close waves-effect waves-green btn-flat">Kelas MOS</a>
+    <a href="<?= base_url('/laporan/kelasreguler'); ?>" class="modal-action modal-close waves-effect waves-green btn-flat">Kelas Reguler</a>
   </div>
 </div>

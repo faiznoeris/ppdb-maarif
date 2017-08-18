@@ -2,7 +2,7 @@
 class daftar extends CI_Controller{
 	function __construct(){
 		parent::__construct();
-		$this->load->model(array('m_daftar','m_dashboard'));
+		$this->load->model(array('m_calonsiswa','m_kabupaten','m_kecamatan','m_desa','m_bobot_nilai','m_kuota','m_tahunajaran','m_blacklist'));
 	}
 
 	//========================================================================
@@ -12,7 +12,7 @@ class daftar extends CI_Controller{
 		//echo $this->input->post('nama');
 		//echo $_POST['action']);
 		if(!empty($_POST)){
-			$bobot_nilai 		= 	$this->m_dashboard->get_bobotnilai()->row();
+			$bobot_nilai 		= 	$this->m_bobot_nilai->get_bobotnilai()->row();
 
 			//-------------------------------------------------------------------
 			//data siswa pendaftar
@@ -83,65 +83,74 @@ class daftar extends CI_Controller{
 			$id_kec     		= 	$this->input->post('select_kecamatan');
 			$id_desa     		= 	$this->input->post('select_desa');
 
-			if(!empty($id_kab)){
-				$q_kab = $this->m_daftar->get_kabupatenname($id_kab)->result();
+
+			if(!empty($id_kab) && $id_kab != "manual"){
+				$q_kab = $this->m_kabupaten->get_namekabupaten($id_kab)->result();
 
 				foreach ($q_kab as $row) {
 					$kabupaten = $row->nm_kabupaten;
 				}
 			}else{
-				$kabupaten       		= 	$this->input->post('kabupaten_input');
-				if(!$this->m_daftar->kab_exist($kabupaten)){
-					$kab_name_fix = ucfirst(strtolower($kabupaten)); //lower the word then capitalize first letter
-					$data = array('nm_kabupaten' => $kab_name_fix);
+				$kabupaten       		= 	$this->input->post('kabupaten');
 
-					$this->m_daftar->ins_kabupaten($data);
+				if($this->m_kabupaten->get_idkabupaten($kabupaten) != ""){
+					$kabupaten = ucfirst(strtolower($kabupaten)); //lower the word then capitalize first letter
+					$data =  array('nm_kabupaten' => $kabupaten);
+					$this->m_kabupaten->insert_kabupaten($data);
 				}
 			}
 
-			if(!empty($id_kec)){
-				$q_kec = $this->m_daftar->get_kecamatanname($id_kec)->result();
+
+			if(!empty($id_kec) && $id_kec != "manual"){
+				$q_kec = $this->m_kecamatan->get_namekecamatan($id_kec)->result();
 
 				foreach ($q_kec as $row) {
 					$kecamatan = $row->nm_kecamatan;
 				}
 			}else{
-				$kecamatan       		= 	$this->input->post('kecamatan_input');
-				if(!$this->m_daftar->kec_exist($kecamatan)){
-					$kec_name_fix = ucfirst(strtolower($kecamatan)); //lower the word then capitalize first letter
+				$kecamatan       		= 	$this->input->post('kecamatan');
 
-					if(!empty($this->m_daftar->getID_kabupaten($kab_name_fix))){
-						$id_kab = $this->m_daftar->getID_kabupaten($kab_name_fix);
+				if($this->m_kecamatan->get_idkecamatan($kecamatan) != ""){
+					$kecamatan = ucfirst(strtolower($kecamatan)); //lower the word then capitalize first letter
+					$query = $this->m_kabupaten->get_idkabupaten($kabupaten);
+
+					if(!empty($query->row()->id_kabupaten)){
+						$id_kab = $query->row()->id_kabupaten;
 					}else{
-						$id_kab = $this->m_daftar->getKabLastID;
+						$id_kab = $this->m_kabupaten->getKabLastID;
 					}
 
-					$data =  array('id_kabupaten' => $id_kab,'nm_kecamatan' => $kec_name_fix);
-					$this->m_daftar->ins_kecamatan($data);
+					$data =  array('id_kabupaten' => $id_kab,'nm_kecamatan' => $kecamatan);
+					$this->m_kecamatan->insert_kecamatan($data);
 				}
 			}
 
-			if(!empty($id_desa)){
-				$q_desa = $this->m_daftar->get_desaname($id_desa)->result();
+
+			if(!empty($id_desa) && $id_desa != "manual"){
+				$q_desa = $this->m_desa->get_namedesa($id_desa)->result();
 
 				foreach ($q_desa as $row) {
 					$desa = $row->nm_desa;
 				}
 			}else{
-				$desa       		= 	$this->input->post('desa_input');
-				if(!$this->m_daftar->desa_exist($desa)){
-					$desa_name_fix = ucfirst(strtolower($desa)); //lower the word then capitalize first letter
-
-					if(!empty($this->m_daftar->getID_kecamatan($kec_name_fix))){
-						$id_kec = $this->m_daftar->getID_kecamatan($kec_name_fix);
+				$desa       		= 	$this->input->post('desa');
+				
+				if(!$this->m_desa->desa_exist($desa)){
+					$desa = ucfirst(strtolower($desa)); //lower the word then capitalize first letter
+					$query = $this->m_kecamatan->get_idkecamatan($kecamatan);
+					
+					if(!empty($query->row()->id_kecamatan)){
+						$id_kec = $query->row()->id_kecamatan;
 					}else{
-						$id_kec = $this->m_daftar->getKecLastID;
+						$id_kec = $this->m_kecamatan->getKecLastID;
 					}
 
-					$data =  array('id_kecamatan' => $id_kec,'nm_kecamatan' => $desa_name_fix);
-					$this->m_daftar->ins_desa($data);
+					$data =  array('id_kecamatan' => $id_kec,'nm_desa' => $desa);
+					$this->m_desa->insert_desa($data);
 				}
 			}
+
+
 
 			$alamat      		= 	"Desa ".$desa." RT. ".$rt." RW. ".$rw." Kecamatan "
 			.$kecamatan." Kabupaten ".$kabupaten." Kode Pos ".$kodepos;
@@ -201,11 +210,10 @@ class daftar extends CI_Controller{
 			$jmlprestasi = $this->input->post('jmlPrestasi');
 
 			for ($i=1; $i <= $jmlprestasi; $i++) { 
-				if($this->input->post('select_peringkat_juara'.$i) == ""){
+				if($this->input->post('select_tingkat_prestasi'.$i) == "0" || $this->input->post('prestasi_ket'.$i) == "" || $this->input->post('select_peringkat_juara'.$i) == "0"){
 					$tingkat_juara .= ".. - ";
-				}
-
-				if($this->input->post('select_tingkat_prestasi'.$i) == "1"){
+					$bobot_prestasi = $bobot_prestasi + 0;
+				}else if($this->input->post('select_tingkat_prestasi'.$i) == "1"){
 					if($this->input->post('select_peringkat_juara'.$i) == "1"){
 						$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_1;
 						$tingkat_juara .= "Nasional - I ";
@@ -238,8 +246,6 @@ class daftar extends CI_Controller{
 						$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_3;
 						$tingkat_juara .= "Kabupaten - III ";
 					}
-				}else{
-					$bobot_prestasi = $bobot_prestasi + 0;
 				}
 
 
@@ -261,276 +267,7 @@ class daftar extends CI_Controller{
 			}
 
 			$nilai_prestasi = $bobot_prestasi / $jmlprestasi;
-
-			// if($this->input->post('select_jml_prestasi') == "1"){
-
-			// 	if($this->input->post('select_tingkat_prestasi1') == "1"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_1;
-			// 			$tingkat_juara = "Nasional - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_2;
-			// 			$tingkat_juara = "Nasional - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_3;
-			// 			$tingkat_juara = "Nasional - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi1') == "2"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_1;
-			// 			$tingkat_juara = "Provinsi - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_2;
-			// 			$tingkat_juara = "Provinsi - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_3;
-			// 			$tingkat_juara = "Provinsi - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi1') == "3"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_1;
-			// 			$tingkat_juara = "Kabupaten - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_2;
-			// 			$tingkat_juara = "Kabupaten - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_3;
-			// 			$tingkat_juara = "Kabupaten - III ";
-			// 		}
-			// 	}
-
-			// 	if(!empty($this->input->post('prestasi_ket1'))){
-			// 		$prestasi        	= 	"1. ".$this->input->post('prestasi_ket1');
-			// 	}else{
-			// 		$prestasi          	=	"0";
-			// 	}
-
-			// 	$nilai_prestasi = $bobot_prestasi;
-
-			// }else if($this->input->post('select_jml_prestasi') == "2"){
-
-			// 	if($this->input->post('select_tingkat_prestasi1') == "1"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_1;
-			// 			$tingkat_juara = "Nasional - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_2;
-			// 			$tingkat_juara = "Nasional - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_3;
-			// 			$tingkat_juara = "Nasional - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi1') == "2"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_1;
-			// 			$tingkat_juara = "Provinsi - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_2;
-			// 			$tingkat_juara = "Provinsi - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_3;
-			// 			$tingkat_juara = "Provinsi - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi1') == "3"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_1;
-			// 			$tingkat_juara = "Kabupaten - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_2;
-			// 			$tingkat_juara = "Kabupaten - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_3;
-			// 			$tingkat_juara = "Kabupaten - III ";
-			// 		}
-			// 	}
-
-
-			// 	if($this->input->post('select_tingkat_prestasi2') == "1"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_1;
-			// 			$tingkat_juara .= "Nasional - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_2;
-			// 			$tingkat_juara .= "Nasional - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_3;
-			// 			$tingkat_juara .= "Nasional - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi2') == "2"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_1;
-			// 			$tingkat_juara .= "Provinsi - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_2;
-			// 			$tingkat_juara .= "Provinsi - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_3;
-			// 			$tingkat_juara .= "Provinsi - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi2') == "3"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_1;
-			// 			$tingkat_juara .= "Kabupaten - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_2;
-			// 			$tingkat_juara .= "Kabupaten - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_3;
-			// 			$tingkat_juara .= "Kabupaten - III ";
-			// 		}
-			// 	}
-
-
-			// 	if(!empty($this->input->post('prestasi_ket1'))){
-			// 		$prestasi        	= 	"1. ".$this->input->post('prestasi_ket1');
-			// 	}else{
-			// 		$prestasi          	=	"0";
-			// 	}
-
-			// 	if(!empty($this->input->post('prestasi_ket2'))){
-			// 		$prestasi        	.= 	nl2br("\n2. ".$this->input->post('prestasi_ket2'));
-			// 	}else{
-			// 		//$prestasi          	.=	"0";
-			// 	}
-
-			// 	$nilai_prestasi = $bobot_prestasi / 2;
-
-			// }else if($this->input->post('select_jml_prestasi') == "3"){
-
-			// 	if($this->input->post('select_tingkat_prestasi1') == "1"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_1;
-			// 			$tingkat_juara = "Nasional - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_2;
-			// 			$tingkat_juara = "Nasional - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_3;
-			// 			$tingkat_juara = "Nasional - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi1') == "2"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_1;
-			// 			$tingkat_juara = "Provinsi - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_2;
-			// 			$tingkat_juara = "Provinsi - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_3;
-			// 			$tingkat_juara = "Provinsi - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi1') == "3"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_1;
-			// 			$tingkat_juara = "Kabupaten - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_2;
-			// 			$tingkat_juara = "Kabupaten - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_3;
-			// 			$tingkat_juara = "Kabupaten - III ";
-			// 		}
-			// 	}
-
-
-			// 	if($this->input->post('select_tingkat_prestasi2') == "1"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_1;
-			// 			$tingkat_juara .= "Nasional - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_2;
-			// 			$tingkat_juara .= "Nasional - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_3;
-			// 			$tingkat_juara .= "Nasional - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi2') == "2"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_1;
-			// 			$tingkat_juara .= "Provinsi - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_2;
-			// 			$tingkat_juara .= "Provinsi - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_3;
-			// 			$tingkat_juara .= "Provinsi - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi2') == "3"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_1;
-			// 			$tingkat_juara .= "Kabupaten - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_2;
-			// 			$tingkat_juara .= "Kabupaten - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_3;
-			// 			$tingkat_juara .= "Kabupaten - III ";
-			// 		}
-			// 	}
-
-
-			// 	if($this->input->post('select_tingkat_prestasi3') == "1"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_1;
-			// 			$tingkat_juara .= "Nasional - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_2;
-			// 			$tingkat_juara .= "Nasional - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_nasional_3;
-			// 			$tingkat_juara .= "Nasional - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi3') == "2"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_1;
-			// 			$tingkat_juara .= "Provinsi - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_2;
-			// 			$tingkat_juara .= "Provinsi - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_provinsi_3;
-			// 			$tingkat_juara .= "Provinsi - III ";
-			// 		}
-			// 	}else if($this->input->post('select_tingkat_prestasi3') == "3"){
-			// 		if($this->input->post('select_peringkat_juara1') == "1"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_1;
-			// 			$tingkat_juara .= "Kabupaten - I ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "2"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_2;
-			// 			$tingkat_juara .= "Kabupaten - II ";
-			// 		}else if($this->input->post('select_peringkat_juara1') == "3"){
-			// 			$bobot_prestasi = $bobot_prestasi + $bobot_nilai->prestasi_kabupaten_3;
-			// 			$tingkat_juara .= "Kabupaten - III ";
-			// 		}
-			// 	}
-
-			// 	if(!empty($this->input->post('prestasi_ket1'))){
-			// 		$prestasi        	= 	"1. ".$this->input->post('prestasi_ket1');
-			// 	}else{
-			// 		$prestasi          	=	"0";
-			// 	}
-
-			// 	if(!empty($this->input->post('prestasi_ket2'))){
-			// 		$prestasi        	.= 	nl2br("\n2. ".$this->input->post('prestasi_ket2'));
-			// 	}else{
-			// 		//$prestasi          	.=	"0";
-			// 	}
-
-			// 	if(!empty($this->input->post('prestasi_ket3'))){
-			// 		$prestasi        	.= 	nl2br("\n3. ".$this->input->post('prestasi_ket3'));
-			// 	}else{
-			// 		//$prestasi          	.=	"0";
-			// 	}
-
-			// 	$nilai_prestasi = $bobot_prestasi / 3;
-			// }else{
-			// 	$nilai_prestasi = 0;
-			// 	$prestasi = "-";
-			// }
-
-
 			
-
 			
 			//=====================================================================
 			// data orang tua murid
@@ -578,6 +315,10 @@ class daftar extends CI_Controller{
 				'tingkat_juara' => $tingkat_juara
 			);
 
+			$tahun_skrng			=	date('Y');
+			$tahun_dulu				=	date('Y')-1;
+			$tahun					=	$tahun_dulu."/".$tahun_skrng;
+
 			$data 				= array(   	
 				'nm_lengkap'       	=>   $nama_lengkap_siswa,
 				'jenis_kelamin'     =>   $jenis_kelamin,
@@ -620,58 +361,56 @@ class daftar extends CI_Controller{
 				'th_lahir_wali'     =>   $th_lahir_wali,
 				'pekerjaan_wali'    =>   $pekerjaar_wali,
 				'pendidikan_wali'   =>   $pendidikan_wali,
+				'tahun'				=>   $tahun
 			);
 
-			/*$kuotaQuery = $this->m_daftar->getKuota()->result();
-			foreach ($kuotaQuery as $row) {
-				$kuota = $row->kuota;
-				$currentSize = $this->m_daftar->getSizeCalonSiswa();
-			}*/
+			$thlahir = substr($tgl_lahir, 0, 4);
+			$umur = $tahun_skrng - $thlahir;
 
-			$tahun_skrng			=	date('Y');
-			$tahun_dulu				=	date('Y')-1;
-			$tahun					=	$tahun_dulu."/".$tahun_skrng;
-
-			$rowkuota = $this->m_dashboard->get_datakuota('withyear',$this->m_dashboard->get_tahunID($tahun))->row();
-			$isblacklist = $this->m_daftar->is_blacklist($nama_lengkap_siswa);
+			$rowkuota = $this->m_kuota->get_kuota('withyear',$this->m_tahunajaran->get_idtahun($tahun))->row();
+			$isblacklist = $this->m_blacklist->is_blacklist($nama_lengkap_siswa,$nisn);
 
 			if($jurusan == "0"){
-				$currentsize = $this->m_daftar->getSizeCalonSiswa("0");
+				$currentsize = $this->m_calonsiswa->getSizeCalonSiswa("0");
 				$sisa = $rowkuota->kuota_tav - $currentsize;
 
 			}else if($jurusan == "1"){
-				$currentsize = $this->m_daftar->getSizeCalonSiswa("1");
+				$currentsize = $this->m_calonsiswa->getSizeCalonSiswa("1");
 				$sisa = $rowkuota->kuota_tkr - $currentsize;
 
 			}else if($jurusan == "2"){
-				$currentsize = $this->m_daftar->getSizeCalonSiswa("2");
+				$currentsize = $this->m_calonsiswa->getSizeCalonSiswa("2");
 				$sisa = $rowkuota->kuota_tkj - $currentsize;
 
 			}else if($jurusan == "3"){
-				$currentsize = $this->m_daftar->getSizeCalonSiswa("3");
+				$currentsize = $this->m_calonsiswa->getSizeCalonSiswa("3");
 				$sisa = $rowkuota->kuota_tab - $currentsize;
-
 			}
 			
 
 
-			//if(!(($kuota - $currentSize) <= 0)){ //cek apakah kuota full
 			if(!($isblacklist)){ //check blacklist ato engga
-				if(!($sisa <= 0)){
-					if($this->m_daftar->input($data, $data_prestasi)){
-						if($this->uploadfoto($this->m_daftar->getLastID())){
+				if($umur >= 21){
+					$this->session->set_tempdata('error', '*Maximal umur untuk mendaftar adalah 21!.', 15);
+					redirect('pendaftaran/gagal');
+				}else if(!($sisa <= 0)){ //cek apakah masih ada kuota untuk jurusan yang dipilih
+					if($this->m_calonsiswa->input($data, $data_prestasi)){
+						if($this->uploadfoto($this->m_calonsiswa->getLastID())){
 							redirect('pendaftaran/sukses');
+						}else{
+							$this->session->set_tempdata('error', $this->upload->display_errors(), 15);
+							redirect('pendaftaran/gagal');
 						}
-				//redirect('pendaftaran/sukses');
 					}else{
+						$this->session->set_tempdata('error', '*Terjadi error saat menginputkan data.', 15);
 						redirect('pendaftaran/gagal');
 					}
 				}else{
-				//send message / info that registration is failed cuz slot is full
+					$this->session->set_tempdata('error', '*Tidak bisa melanjutkan proses pendaftaran dikarenakan slot untuk jurusan yang anda pilih sudah penuh!', 15);
 					redirect('pendaftaran/gagal');
 				}
 			}else{
-				//send message / info that registration is failed cuz blacklisted
+				$this->session->set_tempdata('error', '*Nama / NISN anda terdaftar dalam blacklist, coba lagi tahun depan :)', 15);
 				redirect('pendaftaran/gagal');
 			}
 		}else{
@@ -685,9 +424,9 @@ class daftar extends CI_Controller{
 			'upload_path' => "./asset/images/foto_calonsiswa/",
 			'allowed_types' => "gif|jpg|png|jpeg",
 			'overwrite' => TRUE,
-			'max_size' => "348000", // Can be set to particular file size , here it is 2 MB(2048 Kb)
+			'max_size' => "2048000", // Can be set to particular file size , here it is 2 MB(2048 Kb)
 			'max_height' => "300",
-			'max_width' => "300",
+			'max_width' => "350",
 			'file_name' => "foto". $id
 		);
 
@@ -703,7 +442,7 @@ class daftar extends CI_Controller{
 
 			//unlink('.'.$this->session->userdata('foto_path'));
 
-			if($this->m_daftar->updatefotopath($fotopath, $id)){
+			if($this->m_calonsiswa->updatefotopath($fotopath, $id)){
 				return true;
 			}else{
 				return false;

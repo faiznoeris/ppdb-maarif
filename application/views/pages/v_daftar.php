@@ -43,7 +43,7 @@
 							type 			= 	"text"
 							class 			=	"validate" 
 							required 		=	"" 
-							aria-required 	=	"true"
+							aria-required 	=	"true" 
 							data-error 		=	".errorTxt1">
 							<label for="nama">Nama Lengkap*</label>
 							<div class="errorTxt1"></div>
@@ -295,7 +295,7 @@
 							<select name="select_kabupaten" id="select_kabupaten" required="required">
 								<option value="" disabled selected>Pilih salah satu</option>
 								<?php 
-								$kabupaten = $this->m_daftar->get_kabupaten()->result();
+								$kabupaten = $this->m_kabupaten->get_allkabupaten()->result();
 								foreach ($kabupaten as $row) {
 									echo "<option value='".$row->id_kabupaten."'>".$row->nm_kabupaten."</option>";
 								}
@@ -529,7 +529,7 @@
 					<div class="row" id="prestasi1" style="display: block">
 						<div class="input-field col s2">
 							<select class="icons" name="select_tingkat_prestasi1" id="select_tingkat_prestasi1">
-								<option value="" disabled selected>Pilih salah satu</option>
+								<option value="0" disabled selected>Pilih salah satu</option>
 								<option value="1">Nasional</option>
 								<option value="2">Provinsi</option>
 								<option value="3">Kabupaten</option>
@@ -538,7 +538,7 @@
 						</div>
 						<div class="input-field col s2">
 							<select class="icons" name="select_peringkat_juara1" id="select_peringkat_juara1">
-								<option value="" disabled selected>Pilih salah satu</option>
+								<option value="0" disabled selected>Pilih salah satu</option>
 								<option value="1">Juara I</option>
 								<option value="2">Juara II</option>
 								<option value="3">Juara III</option>
@@ -550,7 +550,7 @@
 							name 			=	"prestasi_ket1" 
 							id 				=	"prestasi_ket1" 
 							type			= 	"text"
-							placeholder 	=	"Juara 1 Makan Kerupuk 17 an" 
+							placeholder 	=	"Juara 1 Volley" 
 							class 			=	"materialize-textarea"></textarea>
 							<label for="prestasi">Keterangan Juara</label>
 						</div>
@@ -806,7 +806,7 @@
 						</div>
 						
 						<div class="file-path-wrapper">
-							<input class="file-path validate" type="text" placeholder="Masukkan foto anda.">
+							<input class="file-path validate" type="text" placeholder="Max Ukuran 300x350, 2MB.">
 						</div><br>
 						<div class="errorTxtFile"></div>
 					</div>
@@ -815,16 +815,16 @@
 
 					<label class="left">
 						<b class='red-text text-darken-2'>
-							<?php if(isset($error)){echo $error;} ?>
+							<?= $this->session->tempdata('error'); ?>
 						</b>
 					</label>
 
-					<?php if(isset($error)){echo "<br/>";} ?>
+					<?php //if(isset($error)){echo "<br/>";} ?>
 
 					<div class="row center">
 						<div class="row">
 							<div class="input-field col s12">
-								<button class="btn cyan waves-effect green darken-3" type="submit" name="action">Submit</button>
+								<button class="btn cyan waves-effect green darken-3" id="btnsubmit" type="submit" name="action">Submit</button>
 							</div>
 						</div>
 					</div>
@@ -833,11 +833,19 @@
 				<!-- Pendaftaran Aktif Page -->		
 			<?php else: ?>
 				<!-- Pendaftaran Tidak Aktif Page -->		
-				<center><h3>Jadwal Pendaftaran</h3><br></center>
-				<p>
-					Sesi pendaftaran belum aktif, waktu pendaftaran akan dibuka pada tanggal:<br><br>
-					<b><i><?= $jadwal_pendaftaran->tanggal_mulai ?></i></b> &emsp;-&emsp; <b><i><?= $jadwal_pendaftaran->tanggal_terakhir ?></i></b><br><br> Pada pukul <b><i><?= $waktu_pendaftaran ?> WIB</i></b>.
-				</p><br>
+				
+				<?php if($status_pendaftaran != ""): ?>
+					<center><h3>Jadwal Pendaftaran</h3><br></center>
+					<p>
+						Sesi pendaftaran belum aktif, waktu pendaftaran akan dibuka pada tanggal:<br><br>
+						<b><i><?= $jadwal_pendaftaran->tanggal_mulai ?></i></b> &emsp;-&emsp; <b><i><?= $jadwal_pendaftaran->tanggal_terakhir ?></i></b><br><br> Pada pukul <b><i><?= $waktu_pendaftaran ?> WIB</i></b>.
+					</p><br>
+				<?php else: ?>
+					<center><h3>Jadwal Pendaftaran</h3><br></center>
+					<p>
+						Sesi pendaftaran belum aktif.
+					</p><br>
+				<?php endif; ?>
 				<!-- Pendaftaran Tidak Aktif Page -->	
 			<?php endif; ?>
 		</div>

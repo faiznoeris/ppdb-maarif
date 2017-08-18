@@ -2,13 +2,13 @@
 class Datasiswa extends CI_Controller{
 	function __construct(){
 		parent::__construct();
-		$this->load->model('m_datasiswa');
+		$this->load->model('m_siswa');
 	}
 
 	function delete(){
 		$id = $this->uri->segment(3);
 		
-		if($this->m_datasiswa->delete($id)){
+		if($this->m_siswa->delete($id)){
 			$this->session->set_tempdata('toastDeletedatasiswa', true, 3);
 			$this->session->set_tempdata('toastDeletedatasiswaID', $id , 3);
 			redirect("dashboard/datapendaftar");
@@ -18,7 +18,7 @@ class Datasiswa extends CI_Controller{
 	}
 
 	function saveedit(){
-		$this->load->model(array("m_datasiswa"));
+		$this->load->model(array("m_siswa"));
 		$id = $this->uri->segment(3);
 
 		if(!empty($_POST)){
@@ -390,7 +390,7 @@ class Datasiswa extends CI_Controller{
 				
 			);
 
-			if($this->m_datasiswa->savechanges($data,$id)){
+			if($this->m_siswa->savechanges($data,$id)){
 				redirect('dashboard/datapendaftar');
 			}else{
 				redirect('dashboard/datapendaftar');

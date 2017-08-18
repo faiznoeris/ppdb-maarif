@@ -2,122 +2,105 @@
 class daftarulang extends CI_Controller{
 	function __construct(){
 		parent::__construct();
-		$this->load->model('m_daftarulang');
+		$this->load->model(array('m_daftarulang','m_blacklist','m_calonsiswa','m_history'));
 	}
 
-	function hitungnilaiakhir(){
-		$operasi = $this->uri->segment(3);
+	function cabutberkas(){
 
-		if($operasi == "all"){
-			foreach ($this->m_daftarulang->get_data('all')->result() as $row)
-			{
-				if($row->nilai_wawancara != 0){
-					$na = ((65/100 * $row->nilai_un) + (35/100 * $row->nilai_wawancara)) + $row->nilai_prestasi;
-				}else{
-					$na = 0;
-				}
+		$id_pendaftar				= 	$this->uri->segment(3);
+		$row 						=	$this->m_daftarulang->get_data('onewithname',$id_pendaftar)->row();
 
-				$data 						= array(   	
-					'nilai_akhir'     			=>   $na
-				);
-				$this->m_daftarulang->update($row->id_pendaftar,$data);
 
-				
-			}
-			redirect('dashboard/seleksipendaftar');
-		}else if($operasi == "one"){
-			$id = $this->uri->segment(4);
-			foreach ($this->m_daftarulang->get_data('one',$id)->result() as $row)
-			{
-				if($row->nilai_wawancara != 0){
-					$na = ((65/100 * $row->nilai_un) + (35/100 * $row->nilai_wawancara)) + $row->nilai_prestasi;
-				}else{
-					$na = 0;
-				}
+		$data 						= array(   	
+			'status'     			=>   "cabut-berkas",
+			'deadline'				=>	 '0000-00-00'
+		);
 
-				$data 						= array(   	
-					'nilai_akhir'     			=>   $na
-				);
-				$this->m_daftarulang->update($row->id_pendaftar,$data);
+		$cadanganquery 		= $this->m_daftarulang->get_data('randomcadangan','');
+		$cadanganavailable 	= $cadanganquery->num_rows();
 
-				
-			}
-			redirect('dashboard/seleksipendaftar');
-		}else if($operasi == "reset"){
-			foreach ($this->m_daftarulang->get_data('all')->result() as $row)
-			{
-				$na = 0;
+		if($cadanganavailable > 0){	
 
-				$data 						= array(   	
-					'nilai_akhir'     			=>   $na
-				);
-				$this->m_daftarulang->update($row->id_pendaftar,$data);
+			//move move cadangan to daftar ulang
+			$rowcadangan 	= 	$cadanganquery->row();
 
-				
-			}
-			redirect('dashboard/seleksipendaftar');
+			$date = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d') + 2, date('Y')));  //get dates 2 days from now
+
+			$datacadangan 						= array(   	
+				'status'     			=>   "-",
+				'deadline'				=>	 $date
+			);
+
+			$this->m_daftarulang->update($rowcadangan->id_pendaftar,$datacadangan);
+
+
+			//delete data pendaftar yang cabut berkas
+			$this->m_blacklist->ins_blacklist($row->nm_lengkap,$row->nisn);
+			$this->m_history->insert($row->id_pendaftar);
+			$this->m_calonsiswa->remove_data($row->id_pendaftar);
+			$this->m_daftarulang->update($row->id_pendaftar,$data);
+
+		}else{
+			$this->m_blacklist->ins_blacklist($row->nm_lengkap,$row->nisn);
+			$this->m_history->insert($row->id_pendaftar);
+			$this->m_calonsiswa->remove_data($row->id_pendaftar);
+			$this->m_daftarulang->update($row->id_pendaftar,$data);
 		}
+
+
+		
+		redirect('dashboard/daftarulang');
 	}
 
-	//========================================================================
-	// proses input data pendaftar
-	//========================================================================
+
 	function inputbayaran(){
-		//echo $this->input->post('nama');
-		//echo $_POST['action']);
 
-		/*$mi = new MultipleIterator();
-		$mi->attachIterator(new ArrayIterator($this->input->post('id_pendaftar')));
-		$mi->attachIterator(new ArrayIterator($this->input->post('nilai_un')));
-		$mi->attachIterator(new ArrayIterator($this->input->post('nilai_wawancara')));
-		foreach ($mi as $value) {*/
-			//list($id, $un, $wawancara) 		= 	$value;
-			$id_pendaftar					= 	$this->uri->segment(3);
-			//get biaya blm bayar
+		$id_pendaftar					= 	$this->uri->segment(3);
 
-			$query = $this->m_daftarulang->get_data('one',$id_pendaftar)->result();
-			$blmbayar = 0;
-			$sdhbayar = 0;
+		//get biaya blm bayar
+		$query = $this->m_daftarulang->get_data('one',$id_pendaftar)->result();
+		$blmbayar = 0;
+		$sdhbayar = 0;
 
-			foreach ($query as $row) {
-				$blmbayar = $row->biaya_belumbayar;
-				$sdhbayar = $row->biaya_telahbayar;
-			}
+		foreach ($query as $row) {
+			$blmbayar = $row->biaya_belumbayar;
+			$sdhbayar = $row->biaya_telahbayar;
+		}
 
-			$nominal_pembayaran				= 	$this->input->post('nominal_pembayaran');
+		$nominal_pembayaran				= 	$this->input->post('nominal_pembayaran');
 
-			if($blmbayar == 2500000){
-				$kekurangan 					= 	2500000 - $nominal_pembayaran;
+		if($blmbayar == 2500000){
+			$kekurangan 					= 	2500000 - $nominal_pembayaran;
 
-			}else{
-				$kekurangan 					= 	$blmbayar - $nominal_pembayaran;
+		}else{
+			$kekurangan 					= 	$blmbayar - $nominal_pembayaran;
 
-			}
+		}
 
-			if($sdhbayar != 0){
-				$nominal_pembayaran = $sdhbayar + $nominal_pembayaran;
-			}
+		if($sdhbayar != 0){
+			$nominal_pembayaran = $sdhbayar + $nominal_pembayaran;
+		}
 
-			if($kekurangan != 0){
-				$status = 'titip';
-			}else{
-				$status = 'du';
-				$this->m_daftarulang->movetosiswa($id_pendaftar);
-				$this->m_daftarulang->delfromcalonsiswa($id_pendaftar);
-			}
+		if($kekurangan != 0){
+			$status = 'titip';
+		}else{
+			$status = 'du';
+			$this->m_daftarulang->movetosiswa($id_pendaftar);
+			$this->m_daftarulang->delfromcalonsiswa($id_pendaftar);
+		}
 
 			//echo $nilai_wawancara;
 
-			$data 						= array(   	
-				'biaya_telahbayar'  =>   $nominal_pembayaran,
-				'biaya_belumbayar'    =>   $kekurangan,
-				'status'      		=>   $status
-			);
-			$this->m_daftarulang->update($id_pendaftar,$data);
+		$data 						= array(   	
+			'biaya_telahbayar'  =>   $nominal_pembayaran,
+			'biaya_belumbayar'    =>   $kekurangan,
+			'status'      		=>   $status
+		);
+		$this->m_daftarulang->update($id_pendaftar,$data);
 		//}
-			redirect('dashboard/daftarulang');
+		redirect('dashboard/daftarulang');
 
-		}
+	}
 
 }//end class
 ?>
